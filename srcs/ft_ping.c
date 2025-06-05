@@ -7,4 +7,9 @@ int main(int ac, char **av) {
 	}
 
 	printf("Pinging %s...\n", av[1]);
+
+	int i = 1;
+	while (av[i]) {
+		
+	}
 }

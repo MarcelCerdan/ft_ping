@@ -11,6 +11,7 @@
 
 # include <netdb.h>
 # include <arpa/inet.h>
+# include <netinet/in.h>
 
 struct ping_data
 {
@@ -25,6 +26,7 @@ struct ping_data
 };
 
 int check_args(char *arg);
-
+int parse_options(int key);
+int check_address(char *address);
 
 #endif

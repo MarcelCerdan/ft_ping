@@ -14,7 +14,8 @@ INC_DIR = includes/
 
 # --- Files --- #
 
-SRC_FILES = ft_ping.c
+SRC_FILES = ft_ping.c \
+			check_args.c
 
 INC_FILES = ft_ping.h
 

@@ -5,11 +5,10 @@ int main(int ac, char **av) {
 		printf("Usage: ft_ping <hostname>\n");
 		return 1;
 	}
-
-	printf("Pinging %s...\n", av[1]);
-
+	
 	int i = 1;
 	while (av[i]) {
-		
+		check_args(av[i]);
+		i++;
 	}
 }

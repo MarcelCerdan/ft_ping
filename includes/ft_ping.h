@@ -28,5 +28,7 @@ struct ping_data
 int check_args(char *arg);
 int parse_options(int key);
 int check_address(char *address);
+void check_malloc(char *error_msg, void *addr);
+void exit_clean(void *data_to_free);
 
 #endif

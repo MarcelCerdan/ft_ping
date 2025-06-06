@@ -11,6 +11,7 @@ int check_args(char *arg) {
 int parse_options(int key) {
 	switch (key) {
 		case 'h':
+		case '?':
 			printf("Usage: ft_ping [options] <hostname>\n");
 			printf("Options:\n");
 			printf("  -h\t\tDisplay this help message\n");
@@ -29,20 +30,22 @@ int parse_options(int key) {
 	}
 }
 
-int check_address(char *str_address) {
+int check_address(char *hostname) {
 
-	printf("Pinging %s...\n", str_address);
+	struct addrinfo hints, *res;
+	int status;
 
-	struct in_addr *addr = malloc(sizeof(struct in_addr));
-	if (addr == NULL) {
-		fprintf(stderr, "Memory allocation failed\n");
+	memset(&hints, 0, sizeof hints); // Be sure the struct is empty
+	hints.ai_family = AF_INET; // IPv4
+	hints.ai_socktype = SOCK_RAW; // Ping uses a socket raw
+
+	if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
+		fprintf(stderr, "getaddrinfo for '%s' failed : %s \n", hostname, gai_strerror(status));
 		exit(1);
 	}
 
-	if (inet_aton(str_address, addr) == 0) { // Check if the address is a valid IPv4 address
-		fprintf(stderr, "Invalid IPv4 address: %s\n", str_address);
-		exit(1);
-	}
+	
+	printf("Pinging %s...\n", hostname);
 
 	return 0; // Placeholder for address checking logic
 }

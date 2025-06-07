@@ -32,7 +32,7 @@ int parse_options(int key) {
 
 int check_address(char *hostname) {
 
-	struct addrinfo hints, *res;
+	struct addrinfo hints, *res, *p;
 	int status;
 
 	memset(&hints, 0, sizeof hints); // Be sure the struct is empty
@@ -44,7 +44,27 @@ int check_address(char *hostname) {
 		exit(1);
 	}
 
+	for (p = res; p != NULL; p = p->ai_next) {
+		void *addr;
+		char ipstr[INET_ADDRSTRLEN];
+
+		// Get the pointer to the address itself
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+		addr = &(ipv4->sin_addr);
+
+		// Convert the IP to a string and print it
+		if (inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr) != NULL) {
+			printf("Resolved address: %s\n", ipstr);
+		}
+		else {
+			fprintf(stderr, "inet_ntop failed: %s\n", strerror(errno));
+			freeaddrinfo(res);
+			exit(1);
+		}
+	}
 	
+	freeaddrinfo(res); // Free the linked list
+
 	printf("Pinging %s...\n", hostname);
 
 	return 0; // Placeholder for address checking logic

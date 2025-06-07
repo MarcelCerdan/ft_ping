@@ -13,6 +13,8 @@
 # include <arpa/inet.h>
 # include <netinet/in.h>
 
+# include <errno.h>
+
 struct ping_data
 {
 	int ping_fd;					/* Raw socket */

@@ -38,11 +38,11 @@ void check_address(char *hostname, ping_data *data) {
 
 	memset(&hints, 0, sizeof hints); // Be sure the struct is empty
 	hints.ai_family = AF_INET; // IPv4
-	hints.ai_socktype = SOCK_RAW; // Ping uses a socket raw
+	hints.ai_socktype = SOCK_RAW; // Ping uses a raw socket
 
 	if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo for '%s' failed : %s \n", hostname, gai_strerror(status));
-		exit_clean(data);
+		exit_clean(NULL, data, 1);
 	}
 
 	if (res == NULL) {
@@ -52,15 +52,17 @@ void check_address(char *hostname, ping_data *data) {
 
 	for (p = res; p != NULL; p = p->ai_next) {
 		void *addr;
-		char ipstr[INET_ADDRSTRLEN];
 
 		// Get the pointer to the address itself
 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
 		addr = &(ipv4->sin_addr);
 
 		// Convert the IP to a string and print it
-		if (inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr) != NULL) {
-			printf("Resolved address: %s\n", ipstr);
+		if (inet_ntop(p->ai_family, addr, data->ip_str, sizeof data->ip_str) != NULL) {
+			printf("Resolved address: %s\n", data->ip_str);
+			data->ping_hostname = strdup(hostname);
+			check_malloc("ping_hostname", data->ping_hostname, data);
+			data->dest_addr = *ipv4; // Store the destination address
 		}
 		else {
 			fprintf(stderr, "inet_ntop failed: %s\n", strerror(errno));
@@ -69,9 +71,5 @@ void check_address(char *hostname, ping_data *data) {
 		}
 	}
 
-	create_socket(data);
-	
 	freeaddrinfo(res);
-
-	printf("Pinging %s...\n", hostname);
 }

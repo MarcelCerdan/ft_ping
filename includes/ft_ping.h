@@ -20,13 +20,36 @@
 typedef struct ping_data
 {
 	int ping_fd;					/* Raw socket */
-	int ping_type;					/* Type of packets to send */
 	int ping_id;					/* Ping identifier */
+	unsigned short ping_seq;		/* Sequence number of the packet */
+
+	// Options
+	int ping_verbose;				/* Verbose mode */
 	size_t ping_count;				/* Number of packets to send */
 	size_t ping_interval;			/* Number of second to wait between packets */
-	struct timeval ping_start_time;	/* Start time */
+
+	// Target information
 	char *ping_hostname;			/* Printable hostname */
-	char *ping_buffer;
+	char ip_str[INET_ADDRSTRLEN];	/* Resolved IP address string */
+	struct sockaddr_in dest_addr;	/* Destination address structure for sendto() */
+
+	 // Statistics
+    long packets_sent;               /* Number of ICMP Echo Requests sent */
+    long packets_received;           /* Number of ICMP Echo Replies received */
+    long errors_received;            /* Number of error packets received (e.g., unreachable) */
+    double min_rtt;                  /* Minimum Round Trip Time */
+    double max_rtt;                  /* Maximum Round Trip Time */
+    double sum_rtt;                  /* Sum of RTTs for average calculation */
+
+	// Timing
+    struct timeval start_time;       /* Start time of the ping utility */
+    struct timeval last_packet_time; /* Time when the last packet was sent (for interval) */
+
+	// Buffer for sending/receiving packets
+    // char send_buffer[PING_PACKET_SIZE]; // Define PING_PACKET_SIZE
+    // char recv_buffer[2048];             // Sufficiently large buffer for receiving packets
+
+
 } ping_data;
 
 // --- FUNCTIONS PROTOTYPES --- //
@@ -38,7 +61,7 @@ void check_address(char *address, ping_data *data);
 
 // Handling errors, memory and exit
 void clean_ping_data(ping_data *data);
-void check_malloc(char *error_msg, void *addr);
+void check_malloc(char *error_msg, void *addr, ping_data *data);
 void exit_clean(void *data_to_free, ping_data *data, int exit_code);
 
 // Create the raw socket

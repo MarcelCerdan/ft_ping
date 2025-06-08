@@ -5,6 +5,7 @@ void create_socket(ping_data *data) {
     tv.tv_sec = 1;  // 1 second timeout for receiving
     tv.tv_usec = 0;
 
+	printf("Creating raw socket for %s...\n", data->ip_str);
 	// Create a raw socket
 	data->ping_fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (data->ping_fd < 0) {

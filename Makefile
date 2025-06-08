@@ -16,6 +16,7 @@ INC_DIR = includes/
 
 SRC_FILES = ft_ping.c \
 			check_args.c \
+			socket.c \
 			errors.c
 
 INC_FILES = ft_ping.h

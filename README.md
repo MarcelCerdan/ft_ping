@@ -7,7 +7,7 @@ TO DO LIST :
 
 	2- Create a raw socket and configure it to use ICMP protocol (IPPROTO_ICMP)
 
-	3- Build the ICMP paquet "Echo request" :	-> Type: 8
+	3- Build the ICMP packet "Echo request" :	-> Type: 8
 												-> Code: 0
 												-> Checksum
 												-> Identifier: often th ID of the ping process

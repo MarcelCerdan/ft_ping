@@ -4,6 +4,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <unistd.h>
 
 # include <sys/time.h>
 # include <sys/types.h>
@@ -12,10 +13,11 @@
 # include <netdb.h>
 # include <arpa/inet.h>
 # include <netinet/in.h>
+# include <netinet/ip_icmp.h>
 
 # include <errno.h>
 
-struct ping_data
+typedef struct ping_data
 {
 	int ping_fd;					/* Raw socket */
 	int ping_type;					/* Type of packets to send */
@@ -25,12 +27,21 @@ struct ping_data
 	struct timeval ping_start_time;	/* Start time */
 	char *ping_hostname;			/* Printable hostname */
 	char *ping_buffer;
-};
+} ping_data;
 
-int check_args(char *arg);
-int parse_options(int key);
-int check_address(char *address);
+// --- FUNCTIONS PROTOTYPES --- //
+
+// Parse and check arguments
+void check_args(char *arg, ping_data *data);
+void parse_options(int key);
+void check_address(char *address, ping_data *data);
+
+// Handling errors, memory and exit
+void clean_ping_data(ping_data *data);
 void check_malloc(char *error_msg, void *addr);
-void exit_clean(void *data_to_free);
+void exit_clean(void *data_to_free, ping_data *data, int exit_code);
+
+// Create the raw socket
+void create_socket(ping_data *data);
 
 #endif

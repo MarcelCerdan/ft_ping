@@ -1,14 +1,17 @@
 #include "ft_ping.h"
 
-int check_args(char *arg) {
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+void check_args(char *arg, ping_data *data) {
 	if (arg[0] == '-')
 		parse_options(arg[1]);
 	else
-		check_address(arg);
-	return 0;
+		check_address(arg, data);
 }
 
-int parse_options(int key) {
+void parse_options(int key) {
 	switch (key) {
 		case 'h':
 		case '?':
@@ -20,17 +23,15 @@ int parse_options(int key) {
 			exit(0);
 		case 'c':
 			// Handle count option
-			return 0;
 		case 'i':
 			// Handle interval option
-			return 0;
 		default:
 			fprintf(stderr, "Unknown option: -%c\n", key);
-			return -1;
+			exit(1);
 	}
 }
 
-int check_address(char *hostname) {
+void check_address(char *hostname, ping_data *data) {
 
 	struct addrinfo hints, *res, *p;
 	int status;
@@ -41,7 +42,12 @@ int check_address(char *hostname) {
 
 	if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo for '%s' failed : %s \n", hostname, gai_strerror(status));
-		exit(1);
+		exit_clean(data);
+	}
+
+	if (res == NULL) {
+    	fprintf(stderr, "No address found for '%s'\n", hostname);
+    	exit(1);
 	}
 
 	for (p = res; p != NULL; p = p->ai_next) {
@@ -59,13 +65,13 @@ int check_address(char *hostname) {
 		else {
 			fprintf(stderr, "inet_ntop failed: %s\n", strerror(errno));
 			freeaddrinfo(res);
-			exit(1);
+			exit_clean(data, NULL, 1);
 		}
 	}
+
+	create_socket(data);
 	
-	freeaddrinfo(res); // Free the linked list
+	freeaddrinfo(res);
 
 	printf("Pinging %s...\n", hostname);
-
-	return 0; // Placeholder for address checking logic
 }

@@ -53,3 +53,5 @@ dkms.conf
 
 # Executable files
 ft_ping
+
+*.json

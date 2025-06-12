@@ -25,7 +25,30 @@ ping_data initialise_ping_data(void) {
 	gettimeofday(&data.start_time, NULL); // Set start time
 	gettimeofday(&data.last_packet_time, NULL); // Set last packet time
 
+	memset(data.send_buffer, 0, PING_PACKET_SIZE); // Clear the send buffer
+
 	return data;
+}
+
+void ping_loop(ping_data *data) {
+	while (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count) {
+		build_icmp_packet(data);
+		
+		ssize_t bytes_sent = sendto(data->ping_fd, data->send_buffer, PING_PACKET_SIZE, 0,
+			(struct sockaddr *)&data->dest_addr, sizeof(data->dest_addr));
+			if (bytes_sent < 0) {
+				perror("sendto");
+				data->errors_received++;
+				continue;
+			}
+			
+			data->packets_sent++;
+			printf("Sent packet %d\n", data->ping_seq);
+			
+			usleep(data->ping_interval * 1000000); // Convert seconds to microseconds
+			data->ping_seq++;
+		}
+
 }
 
 int main(int ac, char **av) {
@@ -38,10 +61,13 @@ int main(int ac, char **av) {
 	
 	int i = 1;
 	while (av[i]) {
-		check_args(av[i], &data);
-		create_socket(&data);
-		printf("Pinging %s...\n", data.ping_hostname);
-		clean_ping_data(&data);
+		if (check_args(av[i], &data) == 0) {
+			create_socket(&data);
+			printf("Pinging %s...\n", data.ping_hostname);
+			ping_loop(&data);
+			clean_ping_data(&data);
+		}
 		i++;
 	}
 }
+

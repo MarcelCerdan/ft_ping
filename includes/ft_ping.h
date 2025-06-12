@@ -17,6 +17,10 @@
 
 # include <errno.h>
 
+# define PING_PACKET_SIZE 64 // Size of the ICMP packet to send
+# define ICMP_HEADER_SIZE sizeof(struct icmphdr) // Size of the ICMP header
+# define PING_PAYLOAD_SIZE (PING_PACKET_SIZE - ICMP_HEADER_SIZE) // Size of the payload in the ICMP packet
+
 typedef struct ping_data
 {
 	int ping_fd;					/* Raw socket */
@@ -46,7 +50,7 @@ typedef struct ping_data
     struct timeval last_packet_time; /* Time when the last packet was sent (for interval) */
 
 	// Buffer for sending/receiving packets
-    // char send_buffer[PING_PACKET_SIZE]; // Define PING_PACKET_SIZE
+    char send_buffer[PING_PACKET_SIZE]; // Define PING_PACKET_SIZE
     // char recv_buffer[2048];             // Sufficiently large buffer for receiving packets
 
 
@@ -55,7 +59,7 @@ typedef struct ping_data
 // --- FUNCTIONS PROTOTYPES --- //
 
 // Parse and check arguments
-void check_args(char *arg, ping_data *data);
+int check_args(char *arg, ping_data *data);
 void parse_options(int key);
 void check_address(char *address, ping_data *data);
 
@@ -66,5 +70,8 @@ void exit_clean(void *data_to_free, ping_data *data, int exit_code);
 
 // Create the raw socket
 void create_socket(ping_data *data);
+
+// Create the ICMP packet
+void build_icmp_packet(ping_data *data);
 
 #endif

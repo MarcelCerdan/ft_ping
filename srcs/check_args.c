@@ -4,11 +4,19 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-void check_args(char *arg, ping_data *data) {
-	if (arg[0] == '-')
-		parse_options(arg[1]);
-	else
+int check_args(char *arg, ping_data *data) {
+	if (arg[0] == '-') {
+		int i = 1;
+		while (arg[i]) {
+			parse_options(arg[i]);
+			i++;
+		}
+		return 1;
+	}
+	else {
 		check_address(arg, data);
+		return 0;
+	}
 }
 
 void parse_options(int key) {
@@ -22,11 +30,14 @@ void parse_options(int key) {
 			printf("  -i <interval>\tWait <interval> seconds between sending packets\n");
 			exit(0);
 		case 'c':
-			// Handle count option
+		// Handle count option
+			break;
 		case 'i':
 			// Handle interval option
+			break;
 		default:
-			fprintf(stderr, "Unknown option: -%c\n", key);
+			fprintf(stderr, "Invalid option: -%c\n", key);
+			fprintf(stderr, "Use -h or --help for usage information.\n");
 			exit(1);
 	}
 }

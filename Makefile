@@ -18,7 +18,7 @@ SRC_FILES = ft_ping.c \
 			check_args.c \
 			socket.c \
 			errors.c \
-			create_packet.c
+			icmp_packet.c
 
 INC_FILES = ft_ping.h
 

@@ -26,12 +26,18 @@ ping_data initialise_ping_data(void) {
 	gettimeofday(&data.last_packet_time, NULL); // Set last packet time
 
 	memset(data.send_buffer, 0, PING_PACKET_SIZE); // Clear the send buffer
+	memset(data.recv_buffer, 0, sizeof(data.recv_buffer)); // Clear the receive buffer
 
 	return data;
 }
 
 void ping_loop(ping_data *data) {
+	struct timeval current_time;
+
+
 	while (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count) {
+		gettimeofday(&current_time, NULL);
+
 		build_icmp_packet(data);
 		
 		ssize_t bytes_sent = sendto(data->ping_fd, data->send_buffer, PING_PACKET_SIZE, 0,
@@ -39,11 +45,14 @@ void ping_loop(ping_data *data) {
 			if (bytes_sent < 0) {
 				perror("sendto");
 				data->errors_received++;
-				continue;
 			}
-			
-			data->packets_sent++;
-			printf("Sent packet %d\n", data->ping_seq);
+			else {
+				data->packets_sent++;
+				data->last_packet_time = current_time; // Update last packet time
+				printf("Sent packet %d (%zd bytes)\n", data->ping_seq, bytes_sent);
+
+				// Receive the ICMP Echo Reply
+			}
 			
 			usleep(data->ping_interval * 1000000); // Convert seconds to microseconds
 			data->ping_seq++;

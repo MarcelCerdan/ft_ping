@@ -51,7 +51,7 @@ typedef struct ping_data
 
 	// Buffer for sending/receiving packets
     char send_buffer[PING_PACKET_SIZE]; // Define PING_PACKET_SIZE
-    // char recv_buffer[2048];             // Sufficiently large buffer for receiving packets
+    char recv_buffer[2048];             // Sufficiently large buffer for receiving packets
 
 
 } ping_data;

@@ -55,10 +55,10 @@ void check_address(char *hostname, ping_data *data) {
 		fprintf(stderr, "getaddrinfo for '%s' failed : %s \n", hostname, gai_strerror(status));
 		exit_clean(NULL, data, 1);
 	}
-
+	
 	if (res == NULL) {
     	fprintf(stderr, "No address found for '%s'\n", hostname);
-    	exit(1);
+    	exit_clean(NULL, data, 1);
 	}
 
 	for (p = res; p != NULL; p = p->ai_next) {
@@ -84,3 +84,4 @@ void check_address(char *hostname, ping_data *data) {
 
 	freeaddrinfo(res);
 }
+

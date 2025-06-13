@@ -8,7 +8,7 @@ ping_data initialise_ping_data(void) {
 	data.ping_seq = 0; // Initialize sequence number
 
 	data.ping_verbose = 0; // Default to non-verbose mode
-	data.ping_count = 0; // Default to sending unlimited packets
+	data.ping_count = 5; // Default to sending unlimited packets
 	data.ping_interval = 1; // Default interval of 1 second
 
 	data.ping_hostname = NULL; // No hostname set initially
@@ -34,29 +34,15 @@ ping_data initialise_ping_data(void) {
 void ping_loop(ping_data *data) {
 	struct timeval current_time;
 
+	gettimeofday(&current_time, NULL);
 
 	while (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count) {
-		gettimeofday(&current_time, NULL);
-
-		build_icmp_packet(data);
-		
-		ssize_t bytes_sent = sendto(data->ping_fd, data->send_buffer, PING_PACKET_SIZE, 0,
-			(struct sockaddr *)&data->dest_addr, sizeof(data->dest_addr));
-			if (bytes_sent < 0) {
-				perror("sendto");
-				data->errors_received++;
-			}
-			else {
-				data->packets_sent++;
-				data->last_packet_time = current_time; // Update last packet time
-				printf("Sent packet %d (%zd bytes)\n", data->ping_seq, bytes_sent);
-
-				// Receive the ICMP Echo Reply
-			}
+		 if (send_ping(data, current_time) == 0) // Send the ICMP Echo Request
+		 	recv_ping(data, current_time); // Receive the ICMP Echo Reply
 			
-			usleep(data->ping_interval * 1000000); // Convert seconds to microseconds
-			data->ping_seq++;
-		}
+		usleep(data->ping_interval * 1000000); // Convert seconds to microseconds
+		data->ping_seq++;
+	}
 
 }
 

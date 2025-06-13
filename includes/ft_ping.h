@@ -21,6 +21,8 @@
 # define ICMP_HEADER_SIZE sizeof(struct icmphdr) // Size of the ICMP header
 # define PING_PAYLOAD_SIZE (PING_PACKET_SIZE - ICMP_HEADER_SIZE) // Size of the payload in the ICMP packet
 
+# define RECV_PACKET_SIZE 2048 // Size of the buffer for receiving packets
+
 typedef struct ping_data
 {
 	int ping_fd;					/* Raw socket */
@@ -73,5 +75,9 @@ void create_socket(ping_data *data);
 
 // Create the ICMP packet
 void build_icmp_packet(ping_data *data);
+
+// Send and receive ICMP packets
+int send_ping(ping_data *data, struct timeval current_time);
+void recv_ping(ping_data *data, struct timeval current_time);
 
 #endif

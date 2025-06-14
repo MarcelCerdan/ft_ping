@@ -8,7 +8,7 @@ ping_data initialise_ping_data(void) {
 	data.ping_seq = 0; // Initialize sequence number
 
 	data.ping_verbose = 0; // Default to non-verbose mode
-	data.ping_count = 5; // Default to sending unlimited packets
+	data.ping_count = 0; // Default to sending unlimited packets
 	data.ping_interval = 1; // Default interval of 1 second
 
 	data.ping_hostname = NULL; // No hostname set initially
@@ -32,18 +32,29 @@ ping_data initialise_ping_data(void) {
 }
 
 void ping_loop(ping_data *data) {
-	struct timeval current_time;
-
-	gettimeofday(&current_time, NULL);
-
 	while (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count) {
-		 if (send_ping(data, current_time) == 0) // Send the ICMP Echo Request
-		 	recv_ping(data, current_time); // Receive the ICMP Echo Reply
+		struct timeval loop_start_time;
+		gettimeofday(&loop_start_time, NULL); // Get the current time for the loop
+
+		if (send_ping(data) == 0) // Send the ICMP Echo Request
+		 	recv_ping(data); // Receive the ICMP Echo Reply
 			
-		usleep(data->ping_interval * 1000000); // Convert seconds to microseconds
+		struct timeval loop_end_time;
+        gettimeofday(&loop_end_time, NULL); // Get time after send/recv attempt
+
+        long elapsed_us = (loop_end_time.tv_sec - loop_start_time.tv_sec) * 1000000L +
+                          (loop_end_time.tv_usec - loop_start_time.tv_usec);
+
+        long required_delay_us = data->ping_interval * 1000000L; // Desired total interval in microseconds
+
+        if (elapsed_us < required_delay_us) {
+            long sleep_duration_us = required_delay_us - elapsed_us;
+            printf("Sleeping for %ld us...\n", sleep_duration_us); // Debug print
+            usleep(sleep_duration_us);
+		}
+			
 		data->ping_seq++;
 	}
-
 }
 
 int main(int ac, char **av) {

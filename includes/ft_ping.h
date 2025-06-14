@@ -42,6 +42,8 @@ typedef struct ping_data
 	 // Statistics
     long packets_sent;               /* Number of ICMP Echo Requests sent */
     long packets_received;           /* Number of ICMP Echo Replies received */
+	long packets_sent_errors;        /* Number of packets sent with errors */
+	long packets_lost;				 /* Number of packets lost (not received) */
     long errors_received;            /* Number of error packets received (e.g., unreachable) */
     double min_rtt;                  /* Minimum Round Trip Time */
     double max_rtt;                  /* Maximum Round Trip Time */
@@ -77,7 +79,7 @@ void create_socket(ping_data *data);
 void build_icmp_packet(ping_data *data);
 
 // Send and receive ICMP packets
-int send_ping(ping_data *data, struct timeval current_time);
-void recv_ping(ping_data *data, struct timeval current_time);
+int send_ping(ping_data *data);
+void recv_ping(ping_data *data);
 
 #endif

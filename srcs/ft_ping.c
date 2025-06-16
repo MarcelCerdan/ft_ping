@@ -49,7 +49,7 @@ void ping_loop(ping_data *data) {
 
         if (elapsed_us < required_delay_us) {
             long sleep_duration_us = required_delay_us - elapsed_us;
-            printf("Sleeping for %ld us...\n", sleep_duration_us); // Debug print
+            // printf("Sleeping for %ld us...\n", sleep_duration_us); // Debug print
             usleep(sleep_duration_us);
 		}
 			
@@ -69,7 +69,7 @@ int main(int ac, char **av) {
 	while (av[i]) {
 		if (check_args(av[i], &data) == 0) {
 			create_socket(&data);
-			printf("Pinging %s...\n", data.ping_hostname);
+			printf("Pinging %s (%s)\n", data.ping_hostname, data.ip_str);
 			ping_loop(&data);
 			clean_ping_data(&data);
 		}

@@ -5,7 +5,6 @@ int send_ping(ping_data *data) {
 
 	build_icmp_packet(data);
 
-	
 	ssize_t bytes_sent = sendto(data->ping_fd, data->send_buffer, PING_PACKET_SIZE, 0,
 		(struct sockaddr *)&data->dest_addr, sizeof(data->dest_addr));
 		if (bytes_sent < 0) {
@@ -17,7 +16,7 @@ int send_ping(ping_data *data) {
 			gettimeofday(&send_time, NULL);
 			data->packets_sent++;
 			data->last_packet_time = send_time; // Update last packet time
-			printf("Sent packet %d (%zd bytes)\n", data->ping_seq, bytes_sent);
+			// printf("Sent packet %d (%zd bytes)\n", data->ping_seq, bytes_sent);  // Debug print
 			return 0;
 	}
 }

@@ -70,7 +70,7 @@ void check_address(char *hostname, ping_data *data) {
 
 		// Convert the IP to a string and print it
 		if (inet_ntop(p->ai_family, addr, data->ip_str, sizeof data->ip_str) != NULL) {
-			printf("Resolved address: %s\n", data->ip_str);
+			//printf("Resolved address: %s\n", data->ip_str); // Debug print
 			data->ping_hostname = strdup(hostname);
 			check_malloc("ping_hostname", data->ping_hostname, data);
 			data->dest_addr = *ipv4; // Store the destination address

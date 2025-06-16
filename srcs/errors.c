@@ -38,3 +38,8 @@ void exit_clean(void *data_to_free, ping_data *data, int exit_code) {
 
 	exit(exit_code);
 }
+
+void error_msg(char *msg, ping_data *data) {
+	fprintf(stderr, "%s\n", msg);
+	exit_clean(NULL, data, 1);
+}

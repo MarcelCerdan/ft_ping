@@ -5,6 +5,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
+# include <ctype.h>
 
 # include <sys/time.h>
 # include <sys/types.h>
@@ -63,14 +64,15 @@ typedef struct ping_data
 // --- FUNCTIONS PROTOTYPES --- //
 
 // Parse and check arguments
-int check_args(char *arg, ping_data *data);
-void parse_options(int key);
+int check_args(char **av, ping_data *data);
+void parse_options(char **av, ping_data *data);
 void check_address(char *address, ping_data *data);
 
 // Handling errors, memory and exit
 void clean_ping_data(ping_data *data);
 void check_malloc(char *error_msg, void *addr, ping_data *data);
 void exit_clean(void *data_to_free, ping_data *data, int exit_code);
+void error_msg(char *msg, ping_data *data);
 
 // Create the raw socket
 void create_socket(ping_data *data);
@@ -81,5 +83,8 @@ void build_icmp_packet(ping_data *data);
 // Send and receive ICMP packets
 int send_ping(ping_data *data);
 void recv_ping(ping_data *data);
+
+// Utils
+int is_number(const char *str);
 
 #endif

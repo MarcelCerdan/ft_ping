@@ -1,4 +1,4 @@
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re libft
 
 # ***** VARIABLES ***** #
 
@@ -20,6 +20,7 @@ SRC_FILES = ft_ping.c \
 			errors.c \
 			icmp_packet.c \
 			send_recv.c \
+			utils.c
 
 INC_FILES = ft_ping.h
 
@@ -31,7 +32,7 @@ DEPS = $(OBJ_FILES:.o=.d)
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-DFLAGS = -MMD -MP -I $(INC_DIR)
+DFLAGS = -MMD -MP -I $(INC_DIR) $(LIBFT_INC)
 
 # --- Commands --- #
 

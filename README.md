@@ -3,23 +3,23 @@ Recoding the ping command using the inetutils-2.0 implementation as a reference.
 
 TO DO LIST :
 
-	1- If the user input a hostname, resolve it to an IP adress (using a DNS server)
+	1- OK - If the user input a hostname, resolve it to an IP adress (using a DNS server)
 
-	2- Create a raw socket and configure it to use ICMP protocol (IPPROTO_ICMP)
+	2- OK - Create a raw socket and configure it to use ICMP protocol (IPPROTO_ICMP)
 
-	3- Build the ICMP packet "Echo request" :	-> Type: 8
+	3- OK - Build the ICMP packet "Echo request" :	-> Type: 8
 												-> Code: 0
 												-> Checksum
 												-> Identifier: often th ID of the ping process
 												-> Sequence number: a sequence number that increment at each paquet send
 												-> Data: Optional payload. Often contains the time to calculate the round-trip (RTT).
 	
-	4- Send the paquet using a function like sendto()
+	4- OK - Send the paquet using a function like sendto()
 
-	5- Wait for the "Echo reply" ICMP paquet :	-> Ping wait for an answer using a function like recvfrom()
+	5- OK - Wait for the "Echo reply" ICMP paquet :	-> Ping wait for an answer using a function like recvfrom()
 												-> It uses a timeout, if no answer is received in a given time, the paquet is considered lost.
 	
-	6- Reception and processing of the "Echo reply" paquet :	-> Ping checks if it's a ICMP paquet
+	6- OK - Reception and processing of the "Echo reply" paquet :	-> Ping checks if it's a ICMP paquet
 																-> It checks if it's a "Echo reply" (type 0)
 																-> It checks the identifier
 																-> Examines the sequence number

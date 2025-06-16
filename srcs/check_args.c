@@ -4,45 +4,55 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-int check_args(char *arg, ping_data *data) {
-	if (arg[0] == '-') {
-		int i = 1;
-		while (arg[i]) {
-			parse_options(arg[i]);
-			i++;
-		}
+int check_args(char **av, ping_data *data) {
+	if (av[0][0] == '-') {
+		parse_options(av, data);
 		return 1;
 	}
 	else {
-		check_address(arg, data);
+		check_address(*av, data);
 		return 0;
 	}
 }
 
-void parse_options(int key) {
-	switch (key) {
-		case 'h':
-		case '?':
-			printf("Usage: ft_ping [options] <hostname>\n");
-			printf("Options:\n");
-			printf("  -h\t\tDisplay this help message\n");
-			printf("  -c <count>\tStop after sending <count> packets\n");
-			printf("  -i <interval>\tWait <interval> seconds between sending packets\n");
-			exit(0);
-		case 'c':
-		// Handle count option
-			break;
-		case 'i':
-			// Handle interval option
-			break;
-		default:
-			fprintf(stderr, "Invalid option: -%c\n", key);
-			fprintf(stderr, "Use -h or --help for usage information.\n");
-			exit(1);
+void parse_options(char **av, ping_data *data) {
+	int i = 1;
+	
+	while (av[0][i] != '\0') {
+		char key = av[0][i++];
+
+		switch (key) {
+			case 'h':
+			case '?':
+				printf("Usage: ft_ping [options] <hostname>\n");
+				printf("Options:\n");
+				printf("  -h\t\tDisplay this help message\n");
+				printf("  -c <count>\tStop after sending <count> packets\n");
+				printf("  -i <interval>\tWait <interval> seconds between sending packets\n");
+				exit(0);
+			case 'c':
+				av++;
+				if (!is_number(*av))
+					error_msg("Invalid argument for -c option. Must be a number.", data);
+				data->ping_count = strtoul(*av, NULL, 10);
+				return;
+			case 'i':
+				av++;
+				if (!is_number(*av))
+	 				error_msg("Invalid argument for -i option. Must be a number.", data);
+				data->ping_interval = strtoul(*av, NULL, 10);
+				return;
+			default:
+				fprintf(stderr, "Invalid option: -%c\n", key);
+				fprintf(stderr, "Use -h for usage information.\n");
+				exit(1);
+		}
 	}
+
 }
 
 void check_address(char *hostname, ping_data *data) {
+	printf("Checking address for hostname: %s\n", hostname); // Debug print
 
 	struct addrinfo hints, *res, *p;
 	int status;

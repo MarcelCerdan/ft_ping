@@ -32,7 +32,7 @@ ping_data initialise_ping_data(void) {
 }
 
 void ping_loop(ping_data *data) {
-	while (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count) {
+	while (data->ping_count <= 0 || (size_t)data->packets_sent < data->ping_count) {
 		struct timeval loop_start_time;
 		gettimeofday(&loop_start_time, NULL); // Get the current time for the loop
 
@@ -47,6 +47,11 @@ void ping_loop(ping_data *data) {
 
         long required_delay_us = data->ping_interval * 1000000L; // Desired total interval in microseconds
 
+		if ((size_t)data->packets_sent == data->ping_count) {
+			clean_ping_data(data); // Clean up after the ping loop
+			exit(0);
+		}
+
         if (elapsed_us < required_delay_us) {
             long sleep_duration_us = required_delay_us - elapsed_us;
             // printf("Sleeping for %ld us...\n", sleep_duration_us); // Debug print
@@ -55,6 +60,9 @@ void ping_loop(ping_data *data) {
 			
 		data->ping_seq++;
 	}
+
+	clean_ping_data(data); // Clean up after the ping loop
+	exit(0);
 }
 
 int main(int ac, char **av) {
@@ -64,16 +72,19 @@ int main(int ac, char **av) {
 	}
 	
 	ping_data data = initialise_ping_data();
+	av++; // Skip the program name
 	
-	int i = 1;
-	while (av[i]) {
-		if (check_args(av[i], &data) == 0) {
+	while (*av) {
+		printf("Processing argument: %s\n", *av); // Debug print
+		if (check_args(av, &data) == 0) {
 			create_socket(&data);
-			printf("Pinging %s (%s)\n", data.ping_hostname, data.ip_str);
+			printf("Pinging %s (%s): %lu data bytes\n", data.ping_hostname, data.ip_str, PING_PAYLOAD_SIZE);
 			ping_loop(&data);
 			clean_ping_data(&data);
 		}
-		i++;
+		else
+			av++;
+		av++;
 	}
 }
 

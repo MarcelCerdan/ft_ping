@@ -1,5 +1,12 @@
 #include "ft_ping.h"
 
+int g_running = 1; // Global flag to control the ping loop
+
+void handle_sigint(int sig) {
+	(void)sig; // Unused parameter
+	g_running = 0; // Set the global running flag to 0 to stop the ping loop
+}
+
 ping_data initialise_ping_data(void) {
 	ping_data data;
 
@@ -7,7 +14,7 @@ ping_data initialise_ping_data(void) {
 	data.ping_id = getpid() & 0xFFFF; // Use the process ID as the ping identifier
 	data.ping_seq = 0; // Initialize sequence number
 
-	data.ping_verbose = 0; // Default to non-verbose mode
+	data.ping_verbose = 0;
 	data.ping_count = 0; // Default to sending unlimited packets
 	data.ping_interval = 1; // Default interval of 1 second
 
@@ -21,6 +28,7 @@ ping_data initialise_ping_data(void) {
 	data.min_rtt = -1.0; // Initialize min RTT to an invalid value
 	data.max_rtt = -1.0; // Initialize max RTT to an invalid value
 	data.sum_rtt = 0.0; // Initialize sum RTT to zero
+	data.sum_rtt_squared = 0.0; // Initialize sum of squared RTTs to zero
 
 	gettimeofday(&data.start_time, NULL); // Set start time
 	gettimeofday(&data.last_packet_time, NULL); // Set last packet time
@@ -32,7 +40,9 @@ ping_data initialise_ping_data(void) {
 }
 
 void ping_loop(ping_data *data) {
-	while (data->ping_count <= 0 || (size_t)data->packets_sent < data->ping_count) {
+	signal(SIGINT, handle_sigint); // Set up signal handler for Ctrl+C
+
+	while (g_running && (data->ping_count == 0 || (size_t)data->packets_sent < data->ping_count)) {
 		struct timeval loop_start_time;
 		gettimeofday(&loop_start_time, NULL); // Get the current time for the loop
 

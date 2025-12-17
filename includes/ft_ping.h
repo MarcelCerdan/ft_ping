@@ -18,8 +18,61 @@
 
 # include <errno.h>
 
+# if defined(__APPLE__) || defined(__MACH__)
+# include <stdint.h>
+
+    struct icmphdr
+    {
+        uint8_t type;
+        uint8_t code;
+        uint16_t checksum;
+        union
+        {
+            struct
+            {
+                uint16_t id;
+                uint16_t sequence;
+            } echo;
+            uint32_t gateway;
+            struct
+            {
+                uint16_t unused;
+                uint16_t mtu;
+            } frag;
+        } un;
+    };
+    typedef struct icmphdr t_icmp_hdr;
+
+	struct iphdr
+    {
+    #if __BYTE_ORDER == __LITTLE_ENDIAN
+        unsigned int ihl:4;
+        unsigned int version:4;
+    #elif __BYTE_ORDER == __BIG_ENDIAN
+        unsigned int version:4;
+        unsigned int ihl:4;
+    #else
+        unsigned int ihl:4;
+        unsigned int version:4;
+    #endif
+        uint8_t tos;
+        uint16_t tot_len;
+        uint16_t id;
+        uint16_t frag_off;
+        uint8_t ttl;
+        uint8_t protocol;
+        uint16_t check;
+        uint32_t saddr;
+        uint32_t daddr;
+    };
+    
+# else
+    #  include <netinet/ip_icmp.h>
+    typedef struct icmphdr t_icmp_hdr;
+# endif
+
 # define PING_PACKET_SIZE 64 // Size of the ICMP packet to send
-# define ICMP_HEADER_SIZE sizeof(struct icmphdr) // Size of the ICMP header
+# define ICMP_HEADER_SIZE sizeof(t_icmp_hdr) // Size of the ICMP header
 # define PING_PAYLOAD_SIZE (PING_PACKET_SIZE - ICMP_HEADER_SIZE) // Size of the payload in the ICMP packet
 
 # define RECV_PACKET_SIZE 2048 // Size of the buffer for receiving packets
@@ -49,6 +102,7 @@ typedef struct ping_data
     double min_rtt;                  /* Minimum Round Trip Time */
     double max_rtt;                  /* Maximum Round Trip Time */
     double sum_rtt;                  /* Sum of RTTs for average calculation */
+    double sum_rtt_squared;         /* Sum of squared RTTs for standard deviation calculation */
 
 	// Timing
     struct timeval start_time;       /* Start time of the ping utility */
@@ -86,5 +140,8 @@ void recv_ping(ping_data *data);
 
 // Utils
 int is_number(const char *str);
+
+// Print statistics
+void print_statistics(ping_data *data);
 
 #endif

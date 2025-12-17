@@ -24,7 +24,7 @@ unsigned short in_cksum(unsigned short *addr, int len) {
 void build_icmp_packet(ping_data *data) {
 	memset(data->send_buffer, 0, PING_PACKET_SIZE);
 	
-	struct icmphdr *icmp_hdr = (struct icmphdr *)data->send_buffer; // Pointer to the ICMP header in the send buffer
+	t_icmp_hdr *icmp_hdr = (t_icmp_hdr *)data->send_buffer; // Pointer to the ICMP header in the send buffer
 
 	icmp_hdr->type = ICMP_ECHO; // Set ICMP type to Echo Request
 	icmp_hdr->code = 0; // Code is 0 for Echo Request

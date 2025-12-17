@@ -8,7 +8,9 @@ void check_malloc(char *error_msg, void *addr, ping_data *data) {
 }
 
 void clean_ping_data(ping_data *data) {
+
 	if (data) {
+		print_statistics(data); // Print final statistics
 		if (data->ping_fd != -1) {
 			close(data->ping_fd); // Close the socket if it was opened
 		}

@@ -47,18 +47,22 @@ void recv_ping(ping_data *data) {
 		struct iphdr *ip_hdr = (struct iphdr *)data->recv_buffer;
         int ip_header_len = ip_hdr->ihl * 4;
 
-        if (ip_hdr->version != 4 || (size_t)bytes_received < (size_t)ip_header_len + sizeof(struct icmphdr)) {
+        if (ip_hdr->version != 4 || (size_t)bytes_received < (size_t)ip_header_len + sizeof(t_icmp_hdr)) {
             // Not IPv4 or too small, discard and wait for another one
             printf("Received non-IPv4 or too small packet. Discarding.\n"); // Debug
             continue; // Continue waiting for a valid packet
         }
 
-		struct icmphdr *icmp_hdr = (struct icmphdr *)(data->recv_buffer + ip_header_len);
+		t_icmp_hdr *icmp_hdr = (t_icmp_hdr *)(data->recv_buffer + ip_header_len);
+
+		char ip_source[INET_ADDRSTRLEN];
+
+		inet_ntop(AF_INET, &(ip_hdr->saddr), ip_source, sizeof(ip_source));
 		
 		if (icmp_hdr->type == ICMP_ECHOREPLY && ntohs(icmp_hdr->un.echo.id) == data->ping_id && ntohs(icmp_hdr->un.echo.sequence) == (unsigned short)(data->ping_seq)) {
 			data->packets_received++;
 
-			struct timeval *send_time_payload = (struct timeval *)(data->recv_buffer + ip_header_len + sizeof(struct icmphdr));
+			struct timeval *send_time_payload = (struct timeval *)(data->recv_buffer + ip_header_len + sizeof(t_icmp_hdr));
 
 			long rtt_us = (recv_time.tv_sec - send_time_payload->tv_sec) * 1000000L +
                           (recv_time.tv_usec - send_time_payload->tv_usec);
@@ -75,15 +79,15 @@ void recv_ping(ping_data *data) {
 
             data->sum_rtt += rtt_ms;
 
-			char ip_source_str[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, &(ip_hdr->saddr), ip_source_str, sizeof(ip_source_str));
+			data->sum_rtt_squared += rtt_ms * rtt_ms;
 
 			printf("%zd bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n",
-                   bytes_received - ip_header_len,
-                   ip_source_str,
-                   ntohs(icmp_hdr->un.echo.sequence),
-                   ip_hdr->ttl,
-                   rtt_ms);
+				bytes_received - ip_header_len,
+				ip_source,
+				ntohs(icmp_hdr->un.echo.sequence),
+				ip_hdr->ttl,
+				rtt_ms);
+
             return; // Successfully processed OUR packet, exit recv_ping
 		}
 	}

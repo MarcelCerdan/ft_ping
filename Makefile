@@ -20,7 +20,8 @@ SRC_FILES = ft_ping.c \
 			errors.c \
 			icmp_packet.c \
 			send_recv.c \
-			utils.c
+			utils.c \
+			statistics.c
 
 INC_FILES = ft_ping.h
 

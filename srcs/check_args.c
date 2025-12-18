@@ -6,22 +6,23 @@
 
 int check_args(char **av, ping_data *data) {
 	if (av[0][0] == '-') {
-		parse_options(av, data);
-		return 1;
+		return parse_options(av, data);
 	}
 	else {
+		printf("Processing hostname: %s\n", *av); // Debug print
 		check_address(*av, data);
-		return 0;
+		return -1;
 	}
 }
 
-void parse_options(char **av, ping_data *data) {
-	int i = 1;
-	
-	while (av[0][i] != '\0') {
-		char key = av[0][i++];
+int parse_options(char **av, ping_data *data) {
+    int i = 1;
+    int consumed = 0;
+	char *val_str;
 
-		switch (key) {
+    while (av[0][i] != '\0') {
+        char key = av[0][i++];
+        switch (key) {
 			case 'h':
 			case '?':
 				printf("Usage: ft_ping [options] <hostname>\n");
@@ -30,25 +31,46 @@ void parse_options(char **av, ping_data *data) {
 				printf("  -c <count>\tStop after sending <count> packets\n");
 				printf("  -i <interval>\tWait <interval> seconds between sending packets\n");
 				exit(0);
-			case 'c':
-				av++;
-				if (!is_number(*av))
-					error_msg("Invalid argument for -c option. Must be a number.", data);
-				data->ping_count = strtoul(*av, NULL, 10);
-				return;
-			case 'i':
-				av++;
-				if (!is_number(*av))
-	 				error_msg("Invalid argument for -i option. Must be a number.", data);
-				data->ping_interval = strtoul(*av, NULL, 10);
-				return;
+            case 'v':
+                data->ping_verbose = 1;
+                break;
+            case 'c':
+            case 'i':
+				if (av[0][i] != '\0') {
+					val_str = &av[0][i];
+					i = strlen(av[0]); // Move to end of string
+				}
+				else {
+					av++;
+					if (!*av)
+						error_msg("Option requires an argument", data);
+					val_str = *av;
+					consumed++;
+				}
+
+				if (!is_number(val_str)) {
+					char msg[64];
+					sprintf(msg, "Invalid argument for -%c option. Must be a number.", key);
+					error_msg(msg, data);
+				}
+
+				long val = strtoul(val_str, NULL, 10);
+				if (key == 'c')
+					data->ping_count = val;
+				else
+					data->ping_interval = val;
+				
+				return consumed; // Consumed option and its argument
+            case 'n':
+				data->opt_numeric = 1;
+                break;
 			default:
 				fprintf(stderr, "Invalid option: -%c\n", key);
 				fprintf(stderr, "Use -h for usage information.\n");
 				exit(1);
-		}
-	}
-
+        }
+    }
+    return consumed;
 }
 
 void check_address(char *hostname, ping_data *data) {

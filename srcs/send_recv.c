@@ -26,6 +26,7 @@ void recv_ping(ping_data *data) {
 	socklen_t addr_len = sizeof(recv_addr);
 	ssize_t bytes_received;
 	struct timeval recv_time;
+	int ret = 1;
 
 	while (1) {
 		bytes_received = recvfrom(data->ping_fd, data->recv_buffer, sizeof(data->recv_buffer), 0,
@@ -55,9 +56,20 @@ void recv_ping(ping_data *data) {
 
 		t_icmp_hdr *icmp_hdr = (t_icmp_hdr *)(data->recv_buffer + ip_header_len);
 
+		struct sockaddr_in src_addr;
+		memset(&src_addr, 0, sizeof(src_addr));
+		src_addr.sin_family = AF_INET;
+		src_addr.sin_addr.s_addr = ip_hdr->saddr;
+
+		char host[NI_MAXHOST];
 		char ip_source[INET_ADDRSTRLEN];
 
 		inet_ntop(AF_INET, &(ip_hdr->saddr), ip_source, sizeof(ip_source));
+
+		if (data->opt_numeric == 0) {
+			ret = getnameinfo((struct sockaddr *)&src_addr, sizeof(src_addr),
+				host, sizeof(host), NULL, 0, 0);
+		}
 		
 		if (icmp_hdr->type == ICMP_ECHOREPLY && ntohs(icmp_hdr->un.echo.id) == data->ping_id && ntohs(icmp_hdr->un.echo.sequence) == (unsigned short)(data->ping_seq)) {
 			data->packets_received++;
@@ -81,14 +93,30 @@ void recv_ping(ping_data *data) {
 
 			data->sum_rtt_squared += rtt_ms * rtt_ms;
 
-			printf("%zd bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n",
-				bytes_received - ip_header_len,
-				ip_source,
-				ntohs(icmp_hdr->un.echo.sequence),
-				ip_hdr->ttl,
-				rtt_ms);
-
+			if (ret == 0 && strcmp(host, ip_source) != 0) {
+				printf("%zd bytes from %s (%s): icmp_seq=%d ttl=%d time=%.2f ms\n",
+				   bytes_received - ip_header_len,
+				   host,
+				   ip_source,
+				   ntohs(icmp_hdr->un.echo.sequence),
+				   ip_hdr->ttl,
+				   rtt_ms);
+			} else {
+				printf("%zd bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n",
+					bytes_received - ip_header_len,
+					ip_source,
+					ntohs(icmp_hdr->un.echo.sequence),
+					ip_hdr->ttl,
+					rtt_ms);
+			}
             return; // Successfully processed OUR packet, exit recv_ping
+		}
+
+		else if (data->ping_verbose) {
+			printf("Received ICMP packet: type=%d code=%d from %s\n",
+				icmp_hdr->type,
+				icmp_hdr->code,
+				ip_source);
 		}
 	}
 }

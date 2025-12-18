@@ -6,6 +6,7 @@
 # include <string.h>
 # include <unistd.h>
 # include <ctype.h>
+# include <math.h>
 
 # include <sys/time.h>
 # include <sys/types.h>
@@ -87,6 +88,7 @@ typedef struct ping_data
 	int ping_verbose;				/* Verbose mode */
 	size_t ping_count;				/* Number of packets to send */
 	size_t ping_interval;			/* Number of second to wait between packets */
+    int opt_numeric;                /* Numeric output only, no hostname resolution */
 
 	// Target information
 	char *ping_hostname;			/* Printable hostname */
@@ -119,8 +121,9 @@ typedef struct ping_data
 
 // Parse and check arguments
 int check_args(char **av, ping_data *data);
-void parse_options(char **av, ping_data *data);
+int parse_options(char **av, ping_data *data);
 void check_address(char *address, ping_data *data);
+long check_number(const char *str, int i, ping_data *data);
 
 // Handling errors, memory and exit
 void clean_ping_data(ping_data *data);

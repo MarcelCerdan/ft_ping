@@ -2,7 +2,7 @@
 
 void print_statistics(ping_data *data) {
     double avg = data->sum_rtt / data->packets_received;
-    double stddev = (data->sum_rtt_squared / data->packets_received) - (avg * avg);
+    double stddev = sqrt((data->sum_rtt_squared / data->packets_received) - (avg * avg));
 
     printf("--- %s ping statistics ---\n", data->ping_hostname);
     printf("%ld packets transmitted, %ld packets received, %.1f%% packet loss\n",

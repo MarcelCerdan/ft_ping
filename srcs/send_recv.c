@@ -16,7 +16,6 @@ int send_ping(ping_data *data) {
 			gettimeofday(&send_time, NULL);
 			data->packets_sent++;
 			data->last_packet_time = send_time; // Update last packet time
-			// printf("Sent packet %d (%zd bytes)\n", data->ping_seq, bytes_sent);  // Debug print
 			return 0;
 	}
 }
@@ -50,7 +49,6 @@ void recv_ping(ping_data *data) {
 
         if (ip_hdr->version != 4 || (size_t)bytes_received < (size_t)ip_header_len + sizeof(t_icmp_hdr)) {
             // Not IPv4 or too small, discard and wait for another one
-            printf("Received non-IPv4 or too small packet. Discarding.\n"); // Debug
             continue; // Continue waiting for a valid packet
         }
 

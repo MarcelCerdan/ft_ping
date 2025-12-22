@@ -18,6 +18,7 @@ ping_data initialise_ping_data(void) {
 	data.ping_count = 0; // Default to sending unlimited packets
 	data.ping_interval = 1; // Default interval of 1 second
 	data.opt_numeric = 0; // Default to hostname resolution enabled
+	data.ttl_val = 64; // Default TTL value
 
 	data.ping_hostname = NULL; // No hostname set initially
 	memset(data.ip_str, 0, INET_ADDRSTRLEN); // Clear IP address string
@@ -66,7 +67,6 @@ void ping_loop(ping_data *data) {
 
         if (elapsed_us < required_delay_us) {
             long sleep_duration_us = required_delay_us - elapsed_us;
-            // printf("Sleeping for %ld us...\n", sleep_duration_us); // Debug print
             usleep(sleep_duration_us);
 		}
 			
@@ -87,7 +87,6 @@ int main(int ac, char **av) {
 	av++; // Skip the program name
 	
 	while (*av) {
-		printf("Processing argument: %s\n", *av); // Debug print
 		int ret = check_args(av, &data);
 		if (ret == -1) {
 			create_socket(&data);

@@ -49,7 +49,7 @@ all:	$(NAME)
 # --- Variables rules --- #
 
 ${NAME}:	$(OBJ_FILES)
-			$(CC) $(CFLAGS) $(OBJ_FILES) -o $(NAME)
+			$(CC) $(CFLAGS) $(OBJ_FILES) -o $(NAME) -lm
 
 # --- Object files rules --- #
 
@@ -58,6 +58,9 @@ $(OBJ_DIR)%.o:	$(SRC_DIR)%.c $(INC_DIR)$(INC_FILES)
 				$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@
 
 # --- Usual rules --- #
+
+leaks:		fclean
+			$(MAKE) all CFLAGS="$(CFLAGS) -g3 -fsanitize=address"
 
 clean:
 			$(RM) $(OBJ_DIR)

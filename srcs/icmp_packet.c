@@ -34,9 +34,5 @@ void build_icmp_packet(ping_data *data) {
 	struct timeval *tv_payload = (struct timeval *)(data->send_buffer + ICMP_HEADER_SIZE); // Pointer to the payload in the send buffer
 	gettimeofday(tv_payload, NULL); // Get the current time for the payload
 	
-	// printf("Time payload set: %ld.%06ld seconds\n", tv_payload->tv_sec, tv_payload->tv_usec); // Debug print
-
 	icmp_hdr->checksum = in_cksum((unsigned short *)data->send_buffer, PING_PACKET_SIZE); // Calculate the checksum
-
-	// printf("ICMP packet built with ID: %d, Sequence: %d\n", ntohs(icmp_hdr->un.echo.id), ntohs(icmp_hdr->un.echo.sequence)); // Debug print
 }

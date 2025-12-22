@@ -9,7 +9,6 @@ int check_args(char **av, ping_data *data) {
 		return parse_options(av, data);
 	}
 	else {
-		printf("Processing hostname: %s\n", *av); // Debug print
 		check_address(*av, data);
 		return -1;
 	}
@@ -50,7 +49,7 @@ int parse_options(char **av, ping_data *data) {
 
 				if (!is_number(val_str)) {
 					char msg[64];
-					sprintf(msg, "Invalid argument for -%c option. Must be a number.", key);
+					snprintf(msg, sizeof(msg), "Invalid argument for -%c option. Must be a positive number.", key);
 					error_msg(msg, data);
 				}
 
@@ -64,6 +63,12 @@ int parse_options(char **av, ping_data *data) {
             case 'n':
 				data->opt_numeric = 1;
                 break;
+			case '-':
+			if (av[1])
+				consumed += handle_long_option(&av[0][i], av[1], data);
+			else
+				consumed += handle_long_option(&av[0][i], NULL, data);
+			return consumed; // Consumed the long option
 			default:
 				fprintf(stderr, "Invalid option: -%c\n", key);
 				fprintf(stderr, "Use -h for usage information.\n");
@@ -73,9 +78,40 @@ int parse_options(char **av, ping_data *data) {
     return consumed;
 }
 
-void check_address(char *hostname, ping_data *data) {
-	printf("Checking address for hostname: %s\n", hostname); // Debug print
+int handle_long_option(char *option, char *value, ping_data *data) {
+	if (strcmp(option, "count") == 0) {
+		if (!is_number(value)) {
+			error_msg("Invalid argument for --count option. Must be a number.", data);
+		}
+		data->ping_count = strtoul(value, NULL, 10);
+		return 1;
+	} else if (strcmp(option, "interval") == 0) {
+		if (!is_number(value)) {
+			error_msg("Invalid argument for --interval option. Must be a number.", data);
+		}
+		data->ping_interval = strtoul(value, NULL, 10);
+		return 1;
+	} else if (strcmp(option, "verbose") == 0) {
+		data->ping_verbose = 1;
+		return 0;
+	} else if (strcmp(option, "numeric") == 0) {
+		data->opt_numeric = 1;
+		return 0;
+	} else if (strcmp(option, "ttl") == 0) {
+		if (!is_number(value)) {
+			error_msg("Invalid argument for --ttl option. Must be a number.", data);
+		}
+		data->ttl_val = strtoul(value, NULL, 10);
+		return 1;
+	}
+	else {
+		fprintf(stderr, "Invalid option: --%s\n", option);
+		fprintf(stderr, "Use -h or -? for usage information.\n");
+		exit(1);
+	}
+}
 
+void check_address(char *hostname, ping_data *data) {
 	struct addrinfo hints, *res, *p;
 	int status;
 
@@ -102,7 +138,6 @@ void check_address(char *hostname, ping_data *data) {
 
 		// Convert the IP to a string and print it
 		if (inet_ntop(p->ai_family, addr, data->ip_str, sizeof data->ip_str) != NULL) {
-			//printf("Resolved address: %s\n", data->ip_str); // Debug print
 			data->ping_hostname = strdup(hostname);
 			check_malloc("ping_hostname", data->ping_hostname, data);
 			data->dest_addr = *ipv4; // Store the destination address

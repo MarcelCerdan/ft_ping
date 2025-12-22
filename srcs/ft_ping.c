@@ -19,6 +19,7 @@ ping_data initialise_ping_data(void) {
 	data.ping_interval = 1; // Default interval of 1 second
 	data.opt_numeric = 0; // Default to hostname resolution enabled
 	data.ttl_val = 64; // Default TTL value
+	data.timeout = 1; // Default timeout of 1 second
 
 	data.ping_hostname = NULL; // No hostname set initially
 	memset(data.ip_str, 0, INET_ADDRSTRLEN); // Clear IP address string

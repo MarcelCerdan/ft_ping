@@ -89,7 +89,8 @@ typedef struct ping_data
 	size_t ping_count;				/* Number of packets to send */
 	size_t ping_interval;			/* Number of second to wait between packets */
     int opt_numeric;                /* Numeric output only, no hostname resolution */
-    int ttl_val;                   	/* Time To Live value for packets */
+    int ttl_val;                 	/* Time To Live value for packets */
+	int timeout;					/* Timeout value for receiving packets */
 
 	// Target information
 	char *ping_hostname;			/* Printable hostname */

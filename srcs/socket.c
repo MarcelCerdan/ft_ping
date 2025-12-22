@@ -2,7 +2,7 @@
 
 void create_socket(ping_data *data) {
 	struct timeval tv;
-    tv.tv_sec = 1;  // 1 second timeout for receiving
+    tv.tv_sec = data->timeout;  // Timeout in seconds
     tv.tv_usec = 0;
 
 	// Create a raw socket

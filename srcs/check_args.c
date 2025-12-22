@@ -35,6 +35,7 @@ int parse_options(char **av, ping_data *data) {
                 break;
             case 'c':
             case 'i':
+			case 'W':
 				if (av[0][i] != '\0') {
 					val_str = &av[0][i];
 					i = strlen(av[0]); // Move to end of string
@@ -56,8 +57,10 @@ int parse_options(char **av, ping_data *data) {
 				long val = strtoul(val_str, NULL, 10);
 				if (key == 'c')
 					data->ping_count = val;
-				else
+				else if (key == 'i')
 					data->ping_interval = val;
+				else if (key == 'W')
+					data->timeout = val;
 				
 				return consumed; // Consumed option and its argument
             case 'n':

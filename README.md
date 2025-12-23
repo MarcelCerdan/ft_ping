@@ -30,6 +30,6 @@ This project includes several advanced options beyond the mandatory requirements
 ## 🛠️ Installation
 
 ```bash
-git clone [https://github.com/MarcelCerdan/ft_ping.git]
+git clone [[https://github.com/MarcelCerdan/ft_ping.git](https://github.com/MarcelCerdan/ft_ping.git)]
 cd ft_ping
 make

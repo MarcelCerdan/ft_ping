@@ -1,6 +1,6 @@
 # ft_ping
 
-![Score](https://img.shields.io/badge/Score-125%2F100-success?style=for-the-badge&logo=42) ![Language](https://img.shields.io/badge/Language-C-blue?style=for-the-badge)
+![Score](https://img.shields.io/badge/Score-?%2F100-success?style=for-the-badge&logo=42) ![Language](https://img.shields.io/badge/Language-C-blue?style=for-the-badge)
 
 **ft_ping** is a C implementation of the standard `ping` command (based on *inetutils*). It sends ICMP ECHO_REQUEST packets to network hosts and listens for ICMP ECHO_REPLY packets to verify connectivity and measure round-trip time.
 

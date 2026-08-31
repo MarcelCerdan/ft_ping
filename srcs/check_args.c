@@ -1,9 +1,5 @@
 #include "ft_ping.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-
 int check_args(char **av, ping_data *data) {
 	if (av[0][0] == '-') {
 		return parse_options(av, data);

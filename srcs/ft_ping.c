@@ -91,7 +91,7 @@ int main(int ac, char **av) {
 		int ret = check_args(av, &data);
 		if (ret == -1) {
 			create_socket(&data);
-			printf("Pinging %s (%s): %lu data bytes\n", data.ping_hostname, data.ip_str, PING_PAYLOAD_SIZE);
+			printf("PING %s (%s): %lu data bytes\n", data.ping_hostname, data.ip_str, PING_PAYLOAD_SIZE);
 			ping_loop(&data);
 			clean_ping_data(&data);
 		}

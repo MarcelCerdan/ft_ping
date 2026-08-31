@@ -7,6 +7,7 @@
 # include <unistd.h>
 # include <ctype.h>
 # include <math.h>
+# include <signal.h>
 
 # include <sys/time.h>
 # include <sys/types.h>

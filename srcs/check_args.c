@@ -83,13 +83,13 @@ int parse_options(char **av, ping_data *data) {
 
 int handle_long_option(char *option, char *value, ping_data *data) {
 	if (strcmp(option, "count") == 0) {
-		if (!is_number(value)) {
+		if (!value || !is_number(value)) {
 			error_msg("Invalid argument for --count option. Must be a number.", data);
 		}
 		data->ping_count = strtoul(value, NULL, 10);
 		return 1;
 	} else if (strcmp(option, "interval") == 0) {
-		if (!is_number(value)) {
+		if (!value || !is_number(value)) {
 			error_msg("Invalid argument for --interval option. Must be a number.", data);
 		}
 		data->ping_interval = strtoul(value, NULL, 10);
@@ -101,7 +101,7 @@ int handle_long_option(char *option, char *value, ping_data *data) {
 		data->opt_numeric = 1;
 		return 0;
 	} else if (strcmp(option, "ttl") == 0) {
-		if (!is_number(value)) {
+		if (!value || !is_number(value)) {
 			error_msg("Invalid argument for --ttl option. Must be a number.", data);
 		}
 		data->ttl_val = strtoul(value, NULL, 10);
@@ -141,6 +141,8 @@ void check_address(char *hostname, ping_data *data) {
 
 		// Convert the IP to a string and print it
 		if (inet_ntop(p->ai_family, addr, data->ip_str, sizeof data->ip_str) != NULL) {
+			if (data->ping_hostname)
+				free(data->ping_hostname);
 			data->ping_hostname = strdup(hostname);
 			check_malloc("ping_hostname", data->ping_hostname, data);
 			data->dest_addr = *ipv4; // Store the destination address
